@@ -39,7 +39,25 @@ type PrefabFunc = (ctx: {
 }) => void;
 const prefabs: { [id: string]: PrefabFunc } = {};
 
+function loadPhysicsRotation(entity: Entity, body: Body) {
+  const [pitch, yaw, roll] = [
+    <number>entity.getProperty('physics:pitch') ?? 0,
+    <number>entity.getProperty('physics:yaw') ?? entity.getRotation().y,
+    <number>entity.getProperty('physics:roll') ?? 0,
+  ];
+  body.quaternion.setFromEuler(pitch * TO_RAD, yaw * TO_RAD, roll * TO_RAD);
+}
+function loadPhysicsBody(entity: Entity, body: Body) {
+  const { x, y, z } = entity.location;
+  body.position.set(x, y, z);
+
+  const physWorld = Physics.getWorld(entity.dimension);
+  physWorld.addBody(body);
+  physObjects[entity.id] = { body, entity, physWorld };
+}
 export namespace Physics {
+  export const bindEntityBody = loadPhysicsBody;
+
   export function getWorld(dim: DimensionId | Dimension) {
     if (dim instanceof Dimension) {
       dim = <DimensionId>dim.id.replace('minecraft:', '');
@@ -102,22 +120,6 @@ const physObjects: {
   [entId: string]: { body: Body; entity: Entity; physWorld: World };
 } = {};
 
-function loadPhysicsRotation(entity: Entity, body: Body) {
-  const [pitch, yaw, roll] = [
-    <number>entity.getProperty('physics:pitch') ?? 0,
-    <number>entity.getProperty('physics:yaw') ?? entity.getRotation().y,
-    <number>entity.getProperty('physics:roll') ?? 0,
-  ];
-  body.quaternion.setFromEuler(pitch * TO_RAD, yaw * TO_RAD, roll * TO_RAD);
-}
-function loadPhysicsBody(entity: Entity, body: Body) {
-  const { x, y, z } = entity.location;
-  body.position.set(x, y, z);
-
-  const physWorld = Physics.getWorld(entity.dimension);
-  physWorld.addBody(body);
-  physObjects[entity.id] = { body, entity, physWorld };
-}
 function loadObject(entity: Entity) {
   if (physObjects[entity.id]) return;
   if (!entity.typeId.startsWith('physics:')) return;
@@ -155,7 +157,7 @@ function playerCollider(player: Entity) {
   const body = new Body({
     mass: 5,
     type: BODY_TYPES.KINEMATIC,
-    shape: new Cylinder(0.3, 0.3, PLR_HEIGHT),
+    shape: new Cylinder(0.5, 0.5, PLR_HEIGHT),
     collisionFilterGroup: CollisionGroup.Player,
     collisionFilterMask: CollisionGroup.Object,
   });

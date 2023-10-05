@@ -11,9 +11,9 @@
       "scripts": {
         "animate": ["rotation"],
         "pre_animation": [
-          "v.pitch = math.lerprotate(v.pitch ?? 0, q.property('physics:pitch'), q.delta_time/0.2);",
-          "v.yaw = math.lerprotate(v.yaw ?? 0, q.property('physics:yaw'), q.delta_time/0.2);",
-          "v.roll = math.lerprotate(v.roll ?? 0, q.property('physics:roll'), q.delta_time/0.2);"
+          "v.pitch = math.lerprotate(v.pitch ?? 0, q.property('physics:pitch'), q.delta_time/0.05);",
+          "v.yaw = math.lerprotate(v.yaw ?? 0, q.property('physics:yaw'), q.delta_time/0.05);",
+          "v.roll = math.lerprotate(v.roll ?? 0, q.property('physics:roll'), q.delta_time/0.05);"
         ]
       }
     }

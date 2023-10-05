@@ -1,0 +1,18 @@
+{
+  "format_version": "1.19.0",
+  "animations": {
+    "animation.physics_block.scale": {
+      "loop": true,
+      "bones": {
+        "pitch": {
+          "position": [0, 0, 0]
+        },
+        "model": {
+          "position": [-10.865, 10.82, "-5.135+16"],
+          "scale": 2.675,
+          "rotation": [-20, -45, 0]
+        }
+      }
+    }
+  }
+}

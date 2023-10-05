@@ -1,31 +1,52 @@
-import { Player, Vector, system, world } from '@minecraft/server';
+import { ItemTypes, Player, Vector, system, world } from '@minecraft/server';
 import Physics from './physics';
-import { Body, RaycastResult, Vec3 } from 'cannon-es';
+import { Body, Box, RaycastResult, Vec3 } from 'cannon-es';
 import { CollisionGroup } from './consts';
 
 world.afterEvents.chatSend.subscribe((ev) => {
-  const dim = ev.sender.dimension;
-  let args = ev.message.split(' ');
+  const { sender, message } = ev;
+  const dim = sender.dimension;
+  let args = message.split(' ');
   const type = args[0];
   args = args.slice(1);
+
+  const hit = sender.getBlockFromViewDirection();
+  const loc = hit
+    ? Vector.add(Vector.add(hit.block.location, hit.faceLocation), {
+        x: 0,
+        y: 2,
+        z: 0,
+      })
+    : undefined;
+
   switch (type) {
     case 'prefab': {
       const [prefab] = args;
-      const hit = ev.sender.getBlockFromViewDirection();
-      const loc = hit
-        ? Vector.add(Vector.add(hit.block.location, hit.faceLocation), {
-            x: 0,
-            y: 2,
-            z: 0,
-          })
-        : undefined;
-      Physics.spawnPrefab(prefab, dim, loc ?? ev.sender.getHeadLocation());
+      Physics.spawnPrefab(prefab, dim, loc ?? sender.getHeadLocation());
+      break;
+    }
+    case 'block': {
+      const [item] = args;
+      if (!item || !ItemTypes.get(item)) {
+        return sender.sendMessage(`'${item}' is not a valid item`);
+      }
+      const pos = loc ?? sender.getHeadLocation();
+      const entity = dim.spawnEntity('physics:block', pos);
+      entity.runCommand(`replaceitem entity @s slot.weapon.mainhand 0 ${item}`);
+      const body = new Body({
+        mass: 1,
+        shape: new Box(new Vec3(0.5, 0.5, 0.5)),
+        collisionFilterGroup: CollisionGroup.Object,
+        collisionFilterMask:
+          CollisionGroup.World | CollisionGroup.Object | CollisionGroup.Player,
+      });
+      Physics.bindEntityBody(entity, body);
     }
   }
+  return;
 });
 
 const MAX_REACH = 6;
-const IMPULSE = 5;
 
 const plrBodyMap: { [id: string]: Body } = {};
 const bodyPlrMap: { [id: string]: Player } = {};
