@@ -1,0 +1,85 @@
+{
+  "author": "MajestikButter",
+  "name": "Physics Test",
+  "packs": {
+    "behaviorPack": "./packs/BP",
+    "resourcePack": "./packs/RP"
+  },
+  "regolith": {
+    "dataPath": "./packs/data",
+    "filterDefinitions": {
+      "blockbench_convert": {
+        "url": "github.com/Bedrock-OSS/regolith-filters",
+        "version": "1.1.1"
+      },
+      "gametests": {
+        "url": "github.com/Bedrock-OSS/regolith-filters",
+        "version": "1.4.1"
+      },
+      "physics_models": {
+        "runWith": "nodejs",
+        "script": "./filters/physics_models/index.js"
+      }
+    },
+    "profiles": {
+      "build": {
+        "export": {
+          "readOnly": false,
+          "target": "local"
+        },
+        "filters": [
+          { "filter": "blockbench_convert" },
+          { "filter": "physics_models" },
+          {
+            "filter": "gametests",
+            "settings": {
+              "buildOptions": {
+                "bundle": true,
+                "entryPoints": ["data/gametests/src/index.ts"],
+                "minify": true
+              },
+              "moduleUUID": "099a977f-4dad-445a-81ea-dc4c25071a32",
+              "modules": ["@minecraft/server@1.6.0-beta"],
+              "outfile": "BP/scripts/index.js"
+            }
+          }
+        ]
+      },
+      "default": {
+        "export": {
+          "readOnly": false,
+          "target": "local"
+        },
+        "filters": [
+          {
+            "profile": "dev"
+          }
+        ]
+      },
+      "dev": {
+        "export": {
+          "readOnly": false,
+          "target": "local"
+        },
+        "filters": [
+          { "filter": "blockbench_convert" },
+          { "filter": "physics_models" },
+          {
+            "filter": "gametests",
+            "settings": {
+              "buildOptions": {
+                "bundle": true,
+                "entryPoints": ["data/gametests/src/index.ts"],
+                "minify": false
+              },
+              "moduleUUID": "099a977f-4dad-445a-81ea-dc4c25071a32",
+              "modules": ["@minecraft/server@1.6.0-beta"],
+              "outdir": "BP/scripts",
+              "outfile": "BP/scripts/index.js"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

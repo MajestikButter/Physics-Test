@@ -1,0 +1,23 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Physics Test BP",
+    "description": "By MajestikButter",
+    "uuid": "5cfe583a-1052-48da-ba5a-1d4f1ea35207",
+    "version": [1, 0, 0],
+    "min_engine_version": [1, 19, 70]
+  },
+  "modules": [
+    {
+      "type": "data",
+      "uuid": "d6cb76c4-6db4-45c5-b3dd-c94f3635381e",
+      "version": [1, 0, 0]
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "e6d19ea5-ca24-4b03-bfc3-c27da1cd9f96",
+      "version": [1, 0, 0]
+    }
+  ]
+}

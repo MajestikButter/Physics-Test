@@ -1,0 +1,24 @@
+{
+  "format_version": "1.20.30",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "physics:#{prefab}.#{body}",
+      "is_summonable": true,
+      "is_spawnable": false,
+      "properties": {
+        "physics:pitch": { "type": "float", "range": [-400.1, 400.1], "client_sync": true, "default": "0" },
+        "physics:yaw": { "type": "float", "range": [-400.1, 400.1], "client_sync": true, "default": "0" },
+        "physics:roll": { "type": "float", "range": [-400.1, 400.1], "client_sync": true, "default": "0" }
+      }
+    },
+    "components": {
+      "minecraft:damage_sensor": { "triggers": [{ "cause": "all", "deals_damage": false }] },
+      "minecraft:collision_box": { "height": 0, "width": 0 },
+      "minecraft:conditional_bandwidth_optimization": {
+        "conditional_values": [],
+        "default_values": {}
+      },
+      "minecraft:physics": { "has_collision": false, "has_gravity": false }
+    }
+  }
+}

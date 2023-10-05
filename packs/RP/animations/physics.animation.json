@@ -1,0 +1,30 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.physics.rotation": {
+			"loop": true,
+			"bones": {
+				"root": {
+					"rotation": ["-q.body_x_rotation", "-q.body_y_rotation", 0]
+				},
+				"pitch": {
+					"rotation": ["v.pitch", 0, 0]
+				},
+				"roll": {
+					"rotation": [0, 0, "-v.roll"]
+				},
+				"yaw": {
+					"rotation": [0, "-v.yaw", 0]
+				}
+			}
+		},
+		"animation.physics.scale": {
+			"loop": true,
+			"bones": {
+				"root": {
+					"scale": "q.property('physics:scale')"
+				}
+			}
+		}
+	}
+}

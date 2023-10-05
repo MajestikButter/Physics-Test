@@ -1,0 +1,28 @@
+{
+  "format_version": "1.20.30",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "physics:sphere",
+      "geometry": { "default": "geometry.physics_sphere" },
+      "materials": { "default": "opaque_block" },
+      "textures": { "default": "textures/physics/template" },
+      "render_controllers": ["controller.render.default"],
+      "animations": {
+        "rotation": "animation.physics.rotation",
+        "scale": "animation.physics.scale"
+      },
+      "scripts": {
+        "animate": ["rotation", "scale"],
+        "pre_animation": [
+          "v.pitch = math.lerprotate(v.pitch ?? 0, q.property('physics:pitch'), q.delta_time/0.2);",
+          "v.yaw = math.lerprotate(v.yaw ?? 0, q.property('physics:yaw'), q.delta_time/0.2);",
+          "v.roll = math.lerprotate(v.roll ?? 0, q.property('physics:roll'), q.delta_time/0.2);"
+        ]
+      },
+      "spawn_egg": {
+        "base_color": "#FFFFFF",
+        "overlay_color": "#000000"
+      }
+    }
+  }
+}

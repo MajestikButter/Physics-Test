@@ -1,0 +1,23 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Physics Test RP",
+    "description": "By MajestikButter",
+    "uuid": "e6d19ea5-ca24-4b03-bfc3-c27da1cd9f96",
+    "version": [1, 0, 0],
+    "min_engine_version": [1, 19, 70]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "dad651fb-c422-49a6-90a8-c48fb3188e18",
+      "version": [1, 0, 0]
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "5cfe583a-1052-48da-ba5a-1d4f1ea35207",
+      "version": [1, 0, 0]
+    }
+  ]
+}
