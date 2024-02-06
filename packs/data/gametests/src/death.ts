@@ -11,6 +11,7 @@ const RAGDOLL_PREFABS: { [k: string]: string } = {
 world.afterEvents.entityDie.subscribe((ev) => {
   const entity = ev.deadEntity;
   if (entity instanceof Player) return;
+  if (entity.typeId.startsWith("physics:")) return entity.remove();
 
   let id = entity.typeId.replace("minecraft:", "");
   if (entity.hasComponent("is_baby")) id += ".baby";
