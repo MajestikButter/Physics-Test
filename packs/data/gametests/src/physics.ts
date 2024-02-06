@@ -3,6 +3,7 @@ import {
   Body,
   BODY_TYPES,
   Box,
+  Constraint,
   Cylinder,
   Plane,
   Sphere,
@@ -36,7 +37,10 @@ type PrefabFunc = (ctx: {
   physWorld: World;
   pos: Vec3;
   dim: Dimension;
-}) => void;
+}) => {
+  [k: `constraint${string}`]: Constraint;
+  [k: `body${string}`]: Body;
+};
 const prefabs: { [id: string]: PrefabFunc } = {};
 
 function loadPhysicsRotation(entity: Entity, body: Body) {
@@ -79,7 +83,6 @@ export namespace Physics {
         cube.origin.y,
         cube.origin.z,
       );
-      console.log(off.toString());
       worldBody.addShape(new Box(extents), off);
       physWorld.addBody(worldBody);
     }
