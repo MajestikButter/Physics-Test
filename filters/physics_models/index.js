@@ -29,8 +29,9 @@ const output = [];
 /** @param {string} str */
 const trimLocator = (str) => str.replace(/(?<=\w)_+$/, "");
 
-/** @param {{[id: string]: any}} map @param {string} key */
+/** @param {{[id: string]: any} | undefined} map @param {string} key */
 function getOption(map, key) {
+  if (!map) return;
   key = `${key}_`;
   for (const k in map) {
     if (k.startsWith(key)) {
@@ -116,26 +117,35 @@ function handleGeo(geo) {
     if (bone.parent === "Objects") {
       /** @type {Shape[]} */
       const shapes = [];
-      const newCubes = [];
-      if (cubes) {
-        /** @type {Cube[]} */
 
-        for (const cube of cubes) {
-          newCubes.push(cube);
-
-          const { origin, size } = cube;
-          /** @type {Vec3} */
-          const half = [size[0] / 16 / 2, size[1] / 16 / 2, size[2] / 16 / 2];
-          /** @type {Vec3} */
-          const pos = [origin[0] / 16 + half[0], origin[1] / 16 + half[1], origin[2] / 16 + half[2]];
-
-          // TODO: Implement non-cube shapes
+      const shapeType = getOption(locators, "type");
+      switch (shapeType) {
+        case "sphere": {
           shapes.push({
-            type: "box",
-            offset: pos,
-            orientation: /** @type {Vec3} */ (cube.rotation?.map((v) => v * TO_RAD) ?? [0, 0, 0]),
-            params: [half],
+            type: "sphere",
+            offset: [0, 0, 0],
+            orientation: [0, 0, 0],
+            params: [parseNum(getOption(locators, "radius")) ?? 0.5],
           });
+          break;
+        }
+        case "custom":
+        default: {
+          if (!cubes) break;
+          for (const cube of cubes) {
+            const { origin, size } = cube;
+            /** @type {Vec3} */
+            const half = [size[0] / 16 / 2, size[1] / 16 / 2, size[2] / 16 / 2];
+            /** @type {Vec3} */
+            const pos = [origin[0] / 16 + half[0], origin[1] / 16 + half[1], origin[2] / 16 + half[2]];
+
+            shapes.push({
+              type: "box",
+              offset: pos,
+              orientation: /** @type {Vec3} */ (cube.rotation?.map((v) => v * TO_RAD) ?? [0, 0, 0]),
+              params: [half],
+            });
+          }
         }
       }
 
@@ -155,7 +165,7 @@ function handleGeo(geo) {
         locators: locators ?? {},
         offset,
         shapes,
-        cubes: newCubes,
+        cubes: cubes ?? [],
         friction,
         mass,
       });
@@ -283,8 +293,17 @@ function createScript(prefab) {
         });
         ${shapes
           .map(({ type, offset: [x, y, z], orientation: [pitch, yaw, roll], params }) => {
-            // TODO: Implement non-box shapes
-            const shape = `new CANNON.Box(new CANNON.Vec3(${params[0]}))`;
+            let shape = "";
+            switch (type) {
+              case "sphere": {
+                shape = `new CANNON.Sphere(${params[0]})`;
+                break;
+              }
+              case "box": {
+                shape = `new CANNON.Box(new CANNON.Vec3(${params[0]}))`;
+                break;
+              }
+            }
             const offVec = `new CANNON.Vec3(${x}, ${y}, ${z})`;
             const rot = `new CANNON.Quaternion().setFromEuler(${pitch * TO_RAD}, ${yaw * TO_RAD}, ${roll * TO_RAD})`;
             return `${constId}.addShape(${shape}, ${offVec}, ${rot});`;

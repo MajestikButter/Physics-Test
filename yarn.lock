@@ -2,6 +2,13 @@
 # yarn lockfile v1
 
 
+"@bedrock-oss/bedrock-boost@^0.0.7":
+  version "0.0.7"
+  resolved "https://registry.npmjs.org/@bedrock-oss/bedrock-boost/-/bedrock-boost-0.0.7.tgz"
+  integrity sha512-xEB5sXOdTUgSrD6x6DYgOuM1A1noLoTjGH/7kN68vcusW85k4PUELClbo6POIDTwOmJixEuJnVFX7wv0WPSyDQ==
+  dependencies:
+    "@minecraft/server" beta
+
 "@isaacs/cliui@^8.0.2":
   version "8.0.2"
   resolved "https://registry.npmjs.org/@isaacs/cliui/-/cliui-8.0.2.tgz"
@@ -14,10 +21,24 @@
     wrap-ansi "^8.1.0"
     wrap-ansi-cjs "npm:wrap-ansi@^7.0.0"
 
-"@minecraft/server@^1.6.0-beta.1.20.30-stable":
-  version "1.6.0-beta.1.20.30-stable"
-  resolved "https://registry.npmjs.org/@minecraft/server/-/server-1.6.0-beta.1.20.30-stable.tgz"
-  integrity sha512-hvRjxbI7cl7LVAv+wmw253O6IHFUVBEMvTl+FJLnUaQv9f/JkGBaVDKgyH0yR7G1SMgVLRoQIA5CM8IZWYDHew==
+"@minecraft/common@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.npmjs.org/@minecraft/common/-/common-1.1.0.tgz"
+  integrity sha512-stbUtINCXbcLNRlGNVX68xRC6ZYq3k3CYmfptwrCcPBEUjVOpVkSj3H4Y0qiSYB+1rVWv7DgiP7Uf9++50Ne5g==
+
+"@minecraft/server@1.8.0-beta.1.20.50-stable":
+  version "1.8.0-beta.1.20.50-stable"
+  resolved "https://registry.yarnpkg.com/@minecraft/server/-/server-1.8.0-beta.1.20.50-stable.tgz#9aec52267ec0e4444c87b10d556df7def96f249d"
+  integrity sha512-2QT+JWbwHWepaX2Md8g7s9HsNXqoSS2ztdTpI6ICNl1Uyodeg4P1D3oZnNVy7sVS5FTnh86P8YVTsL2oYla/SA==
+  dependencies:
+    "@minecraft/common" "^1.1.0"
+
+"@minecraft/server@beta":
+  version "1.8.0-rc.1.20.70-preview.21"
+  resolved "https://registry.npmjs.org/@minecraft/server/-/server-1.8.0-rc.1.20.70-preview.21.tgz"
+  integrity sha512-CaQz66NBAAR+qkg4INsMcdcbcNTXV1Q9YmX92BXeiF2i4IFVJ+K30gOkNf47lrOJ0O5yVco7oY7VSU11q3S03w==
+  dependencies:
+    "@minecraft/common" "^1.1.0"
 
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
@@ -184,16 +205,7 @@ signal-exit@^4.0.1:
   resolved "https://registry.npmjs.org/signal-exit/-/signal-exit-4.1.0.tgz"
   integrity sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==
 
-"string-width-cjs@npm:string-width@^4.2.0":
-  version "4.2.3"
-  resolved "https://registry.npmjs.org/string-width/-/string-width-4.2.3.tgz"
-  integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
-  dependencies:
-    emoji-regex "^8.0.0"
-    is-fullwidth-code-point "^3.0.0"
-    strip-ansi "^6.0.1"
-
-string-width@^4.1.0:
+"string-width-cjs@npm:string-width@^4.2.0", string-width@^4.1.0:
   version "4.2.3"
   resolved "https://registry.npmjs.org/string-width/-/string-width-4.2.3.tgz"
   integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
@@ -211,14 +223,7 @@ string-width@^5.0.1, string-width@^5.1.2:
     emoji-regex "^9.2.2"
     strip-ansi "^7.0.1"
 
-"strip-ansi-cjs@npm:strip-ansi@^6.0.1":
-  version "6.0.1"
-  resolved "https://registry.npmjs.org/strip-ansi/-/strip-ansi-6.0.1.tgz"
-  integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==
-  dependencies:
-    ansi-regex "^5.0.1"
-
-strip-ansi@^6.0.0, strip-ansi@^6.0.1:
+"strip-ansi-cjs@npm:strip-ansi@^6.0.1", strip-ansi@^6.0.0, strip-ansi@^6.0.1:
   version "6.0.1"
   resolved "https://registry.npmjs.org/strip-ansi/-/strip-ansi-6.0.1.tgz"
   integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==

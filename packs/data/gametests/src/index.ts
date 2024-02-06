@@ -1,2 +1,3 @@
-import './chat';
-import './prefabs/index';
+import "./polyfill";
+import "./chat";
+import "./prefabs/index";

@@ -1,7 +1,8 @@
-import { Dimension, Entity, Vector3, system, world } from '@minecraft/server';
+import { Dimension, Entity, system, Vector3, world } from "@minecraft/server";
 import {
-  BODY_TYPES,
   Body,
+  BODY_TYPES,
+  Box,
   Broadphase,
   ConeTwistConstraint,
   Cylinder,
@@ -9,8 +10,9 @@ import {
   Sphere,
   Vec3,
   World,
-} from 'cannon-es';
-import { CollisionGroup } from './consts';
+} from "cannon-es";
+import { CollisionGroup } from "./consts";
+import { Cube } from "./meshing";
 
 const EARTH_GRAVITY = -9.82;
 // const EARTH_GRAVITY = -0.1;
@@ -41,9 +43,9 @@ const prefabs: { [id: string]: PrefabFunc } = {};
 
 function loadPhysicsRotation(entity: Entity, body: Body) {
   const [pitch, yaw, roll] = [
-    <number>entity.getProperty('physics:pitch') ?? 0,
-    <number>entity.getProperty('physics:yaw') ?? entity.getRotation().y,
-    <number>entity.getProperty('physics:roll') ?? 0,
+    <number> entity.getProperty("physics:pitch") ?? 0,
+    <number> entity.getProperty("physics:yaw") ?? entity.getRotation().y,
+    <number> entity.getProperty("physics:roll") ?? 0,
   ];
   body.quaternion.setFromEuler(pitch * TO_RAD, yaw * TO_RAD, roll * TO_RAD);
 }
@@ -58,24 +60,38 @@ function loadPhysicsBody(entity: Entity, body: Body) {
 export namespace Physics {
   export const bindEntityBody = loadPhysicsBody;
 
+  export function createWorldMesh(dim: Dimension, cubes: Cube[]) {
+    const physWorld = Physics.getWorld(dim);
+    for (const cube of cubes) {
+      const body = new Body({
+        type: Body.STATIC,
+        shape: new Box(
+          new Vec3(cube.size.x / 2, cube.size.y / 2, cube.size.z / 2),
+        ),
+        position: new Vec3(cube.origin.x, cube.origin.y - 0.5, cube.origin.z),
+      });
+      physWorld.addBody(body);
+    }
+  }
+
   export function getWorld(dim: DimensionId | Dimension) {
     if (dim instanceof Dimension) {
-      dim = <DimensionId>dim.id.replace('minecraft:', '');
+      dim = <DimensionId> dim.id.replace("minecraft:", "");
     }
     return worlds[dim];
   }
   export function executeWorlds(
-    exec: (physicsWorld: World, dimension: Dimension) => void
+    exec: (physicsWorld: World, dimension: Dimension) => void,
   ) {
     for (const id in worlds) {
-      exec(worlds[<DimensionId>id], world.getDimension(id));
+      exec(worlds[<DimensionId> id], world.getDimension(id));
     }
   }
   export function createBodyEntity(
     id: string,
     pos: Vector3,
     dim: Dimension,
-    body: Body
+    body: Body,
   ) {
     const ent = dim.spawnEntity(id, pos);
     loadPhysicsBody(ent, body);
@@ -122,14 +138,14 @@ const physObjects: {
 
 function loadObject(entity: Entity) {
   if (physObjects[entity.id]) return;
-  if (!entity.typeId.startsWith('physics:')) return;
+  if (!entity.typeId.startsWith("physics:")) return;
 
   const body = new Body({
     mass: 5,
     shape: new Sphere(0.5),
     collisionFilterGroup: CollisionGroup.Object,
-    collisionFilterMask:
-      CollisionGroup.World | CollisionGroup.Object | CollisionGroup.Player,
+    collisionFilterMask: CollisionGroup.World | CollisionGroup.Object |
+      CollisionGroup.Player,
   });
   loadPhysicsRotation(entity, body);
   loadPhysicsBody(entity, body);
@@ -168,8 +184,8 @@ world.afterEvents.playerSpawn.subscribe((ev) => {
   playerCollider(ev.player);
 });
 
-for (const ent of world.getDimension('overworld').getEntities()) {
-  if (ent.typeId === 'minecraft:player') {
+for (const ent of world.getDimension("overworld").getEntities()) {
+  if (ent.typeId === "minecraft:player") {
     playerCollider(ent);
   } else loadObject(ent);
 }
@@ -180,17 +196,17 @@ system.runInterval(() => {
   for (const k in physObjects) {
     const { body, entity } = physObjects[k];
     if (!entity.isValid()) continue;
-    if (entity.typeId === 'minecraft:player') {
+    if (entity.typeId === "minecraft:player") {
       const { x, y, z } = entity.location;
       body.position.set(x, y + PLR_HEIGHT / 2, z);
       const { x: vx, y: vy, z: vz } = entity.getVelocity();
       body.velocity.set(vx, vy, vz);
     } else {
       const rot = new Vec3();
-      body.quaternion.toEuler(rot, 'YZX');
-      entity.setProperty('physics:pitch', rot.x * TO_DEG);
-      entity.setProperty('physics:roll', rot.z * TO_DEG);
-      entity.setProperty('physics:yaw', rot.y * TO_DEG);
+      body.quaternion.toEuler(rot, "YZX");
+      entity.setProperty("physics:pitch", rot.x * TO_DEG);
+      entity.setProperty("physics:roll", rot.z * TO_DEG);
+      entity.setProperty("physics:yaw", rot.y * TO_DEG);
       const { x, y, z } = body.position;
       entity.teleport({ x, y: y, z });
     }

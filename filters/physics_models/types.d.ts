@@ -66,12 +66,9 @@ interface Constraint {
   params: any[];
 }
 
-interface ShapeRoute {
-  box: [halfExtents: Vec3];
-}
-export interface Shape<T extends keyof ShapeRoute = keyof ShapeRoute> {
-  type: T;
-  params: ShapeRoute[T];
+export interface Shape {
+  type: string;
+  params: any[];
   offset: Vec3;
   orientation: Vec3;
 }

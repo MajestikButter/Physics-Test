@@ -1,44 +1,66 @@
-import { ItemTypes, Player, Vector, system, world } from '@minecraft/server';
-import Physics from './physics';
-import { Body, Box, RaycastResult, Vec3 } from 'cannon-es';
-import { CollisionGroup } from './consts';
+import { Player, system, world } from "@minecraft/server";
+import Physics from "./physics";
+import { Body, Box, RaycastResult, Vec3 } from "cannon-es";
+import { CollisionGroup } from "./consts";
+import { ColorJSON, Vec3 as Vec } from "@bedrock-oss/bedrock-boost";
+import { GreedyMesher } from "./meshing";
 
 world.afterEvents.chatSend.subscribe((ev) => {
   const { sender, message } = ev;
   const dim = sender.dimension;
-  let args = message.split(' ');
+  let args = message.split(" ");
   const type = args[0];
   args = args.slice(1);
 
   const hit = sender.getBlockFromViewDirection();
   const loc = hit
-    ? Vector.add(Vector.add(hit.block.location, hit.faceLocation), {
-        x: 0,
-        y: 2,
-        z: 0,
-      })
+    ? Vec.from(hit.block.location).add(hit.faceLocation).add({
+      x: 0,
+      y: 2,
+      z: 0,
+    })
     : undefined;
 
   switch (type) {
-    case 'prefab': {
+    case "mesh": {
+      const start = new Date().getTime();
+      const mesher = new GreedyMesher(16, { x: 0, y: 0, z: 0 });
+      for (let i = 0; i < 16 * 16 * 16; i++) {
+        const x = i % 16;
+        const z = Math.floor(i / 16) % 16;
+        const y = Math.floor(i / 16 / 16) % 16;
+        try {
+          const block = dim.getBlock({ x, y, z });
+          if (block && !block.isAir && !block.isLiquid) mesher.setVoxel(x, y, z);
+        } catch {}
+      }
+      console.log(`${new Date().getTime() - start}ms to get 16x16x16 blocks`);
+      const startMesh = new Date().getTime();
+      const cubes = mesher.meshCubes();
+      console.log(cubes.map((v) => ColorJSON.DEFAULT.stringify(v)));
+      console.log(`${new Date().getTime() - startMesh}ms to mesh blocks`);
+      Physics.createWorldMesh(dim, cubes);
+      break;
+    }
+    case "prefab": {
       const [prefab] = args;
       Physics.spawnPrefab(prefab, dim, loc ?? sender.getHeadLocation());
       break;
     }
-    case 'block': {
+    case "block": {
       const [item] = args;
-      if (!item || !ItemTypes.get(item)) {
+      if (!item) {
         return sender.sendMessage(`'${item}' is not a valid item`);
       }
       const pos = loc ?? sender.getHeadLocation();
-      const entity = dim.spawnEntity('physics:block', pos);
+      const entity = dim.spawnEntity("physics:block", pos);
       entity.runCommand(`replaceitem entity @s slot.weapon.mainhand 0 ${item}`);
       const body = new Body({
         mass: 1,
         shape: new Box(new Vec3(0.5, 0.5, 0.5)),
         collisionFilterGroup: CollisionGroup.Object,
-        collisionFilterMask:
-          CollisionGroup.World | CollisionGroup.Object | CollisionGroup.Player,
+        collisionFilterMask: CollisionGroup.World | CollisionGroup.Object |
+          CollisionGroup.Player,
       });
       Physics.bindEntityBody(entity, body);
     }
@@ -74,7 +96,7 @@ function selectBody(plr: Player, body: Body) {
 
 world.afterEvents.itemUse.subscribe((ev) => {
   const { source, itemStack } = ev;
-  if (itemStack.typeId !== 'minecraft:stick') return;
+  if (itemStack.typeId !== "minecraft:stick") return;
 
   if (plrBodyMap[source.id]) {
     clearSelect(source);
@@ -95,7 +117,7 @@ world.afterEvents.itemUse.subscribe((ev) => {
     locVec,
     toVec,
     { collisionFilterMask: CollisionGroup.Object },
-    res
+    res,
   );
   if (!res.body) return;
 
