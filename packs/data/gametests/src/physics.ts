@@ -58,6 +58,7 @@ function loadPhysicsBody(entity: Entity, body: Body) {
   const physWorld = Physics.getWorld(entity.dimension);
   physWorld.addBody(body);
   physObjects[entity.id] = { body, entity, physWorld };
+  bodyToEntity[`${body.id}`] = entity.id;
 }
 export namespace Physics {
   export const bindEntityBody = loadPhysicsBody;
@@ -109,6 +110,7 @@ export namespace Physics {
   ) {
     const ent = dim.spawnEntity(id, pos);
     loadPhysicsBody(ent, body);
+    return ent;
   }
 
   const step = 1 / 20;
@@ -144,11 +146,19 @@ Physics.executeWorlds((physicsWorld) => {
   groundBody.position.set(0, -60, 0);
   groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
   physicsWorld.addBody(groundBody);
+
+  physicsWorld.addEventListener(
+    physicsWorld.removeBodyEvent.type,
+    (ev: { body: Body; world: World }) => {
+      unloadObject(bodyToEntity[`${ev.body.id}`]);
+    },
+  );
 });
 
 const physObjects: {
   [entId: string]: { body: Body; entity: Entity; physWorld: World };
 } = {};
+const bodyToEntity: { [bodyId: string]: string } = {};
 
 function loadObject(entity: Entity) {
   if (physObjects[entity.id]) return;
@@ -168,8 +178,10 @@ function loadObject(entity: Entity) {
 function unloadObject(id: string) {
   const info = physObjects[id];
   if (!info) return;
-  info.physWorld.removeBody(info.body);
+  if (info.entity.isValid()) info.entity.remove();
   delete physObjects[id];
+  delete physObjects[`${info.body.id}`];
+  info.physWorld.removeBody(info.body);
 }
 
 world.afterEvents.entitySpawn.subscribe((ev) => {
