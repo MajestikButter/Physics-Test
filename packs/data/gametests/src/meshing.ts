@@ -1,5 +1,3 @@
-import { ColorJSON } from "@bedrock-oss/bedrock-boost";
-
 type Vec3 = { x: number; y: number; z: number };
 export interface Cube {
   origin: Vec3;

@@ -1,9 +1,32 @@
-import { Player, system, world } from "@minecraft/server";
+import { Dimension, Player, system, Vector3, world } from "@minecraft/server";
 import Physics from "./physics";
 import { Body, Box, RaycastResult, Vec3 } from "cannon-es";
 import { CollisionGroup } from "./consts";
 import { ColorJSON, Vec3 as Vec } from "@bedrock-oss/bedrock-boost";
 import { GreedyMesher } from "./meshing";
+
+function meshDimension(dim: Dimension, pos: Vector3) {
+  const start = new Date().getTime();
+  const mesher = new GreedyMesher(16, pos);
+  for (let i = 0; i < 16 * 16 * 16; i++) {
+    const x = i % 16;
+    const z = Math.floor(i / 16) % 16;
+    const y = Math.floor(i / 16 / 16) % 16;
+    try {
+      const block = dim.getBlock({ x, y, z });
+      if (block && !block.isAir && !block.isLiquid) mesher.setVoxel(x, y, z);
+    } catch {}
+  }
+  console.log(`${new Date().getTime() - start}ms to get 16x16x16 blocks`);
+  const startMesh = new Date().getTime();
+  const cubes = mesher.meshCubes();
+  console.log(cubes.map((v) => ColorJSON.DEFAULT.stringify(v)));
+  console.log(`${new Date().getTime() - startMesh}ms to mesh blocks`);
+  return cubes;
+}
+
+const overworld = world.getDimension("overworld");
+Physics.createWorldMesh(overworld, meshDimension(overworld, { x: 0, y: 0, z: 0 }));
 
 world.afterEvents.chatSend.subscribe((ev) => {
   const { sender, message } = ev;
@@ -23,23 +46,7 @@ world.afterEvents.chatSend.subscribe((ev) => {
 
   switch (type) {
     case "mesh": {
-      const start = new Date().getTime();
-      const mesher = new GreedyMesher(16, { x: 0, y: 0, z: 0 });
-      for (let i = 0; i < 16 * 16 * 16; i++) {
-        const x = i % 16;
-        const z = Math.floor(i / 16) % 16;
-        const y = Math.floor(i / 16 / 16) % 16;
-        try {
-          const block = dim.getBlock({ x, y, z });
-          if (block && !block.isAir && !block.isLiquid) mesher.setVoxel(x, y, z);
-        } catch {}
-      }
-      console.log(`${new Date().getTime() - start}ms to get 16x16x16 blocks`);
-      const startMesh = new Date().getTime();
-      const cubes = mesher.meshCubes();
-      console.log(cubes.map((v) => ColorJSON.DEFAULT.stringify(v)));
-      console.log(`${new Date().getTime() - startMesh}ms to mesh blocks`);
-      Physics.createWorldMesh(dim, cubes);
+      Physics.createWorldMesh(dim, meshDimension(dim, { x: 0, y: 0, z: 0 }));
       break;
     }
     case "prefab": {
