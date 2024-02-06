@@ -7,14 +7,16 @@ import { GreedyMesher } from "./meshing";
 
 function meshDimension(dim: Dimension, pos: Vector3) {
   const start = new Date().getTime();
-  const mesher = new GreedyMesher(16, pos);
+  const mesher = new GreedyMesher(16);
   for (let i = 0; i < 16 * 16 * 16; i++) {
     const x = i % 16;
     const z = Math.floor(i / 16) % 16;
     const y = Math.floor(i / 16 / 16) % 16;
     try {
       const block = dim.getBlock({ x, y, z });
-      if (block && !block.isAir && !block.isLiquid) mesher.setVoxel(x, y, z);
+      if (block && !block.isAir && !block.isLiquid) {
+        mesher.setVoxel(x - pos.x, y - pos.y, z - pos.z);
+      }
     } catch {}
   }
   console.log(`${new Date().getTime() - start}ms to get 16x16x16 blocks`);
@@ -26,7 +28,8 @@ function meshDimension(dim: Dimension, pos: Vector3) {
 }
 
 const overworld = world.getDimension("overworld");
-Physics.createWorldMesh(overworld, meshDimension(overworld, { x: 0, y: 0, z: 0 }));
+const min = { x: 0, y: 0, z: 0 };
+Physics.createWorldMesh(overworld, min, meshDimension(overworld, min));
 
 world.afterEvents.chatSend.subscribe((ev) => {
   const { sender, message } = ev;
@@ -46,7 +49,7 @@ world.afterEvents.chatSend.subscribe((ev) => {
 
   switch (type) {
     case "mesh": {
-      Physics.createWorldMesh(dim, meshDimension(dim, { x: 0, y: 0, z: 0 }));
+      Physics.createWorldMesh(dim, min, meshDimension(dim, min));
       break;
     }
     case "prefab": {

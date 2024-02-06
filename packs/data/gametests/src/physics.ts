@@ -58,17 +58,30 @@ function loadPhysicsBody(entity: Entity, body: Body) {
 export namespace Physics {
   export const bindEntityBody = loadPhysicsBody;
 
-  export function createWorldMesh(dim: Dimension, cubes: Cube[]) {
+  export function createWorldMesh(
+    dim: Dimension,
+    origin: Vector3,
+    cubes: Cube[],
+  ) {
     const physWorld = Physics.getWorld(dim);
+    const worldBody = new Body({
+      type: Body.STATIC,
+      position: new Vec3(origin.x, origin.y - 0.5, origin.z),
+    });
     for (const cube of cubes) {
-      const body = new Body({
-        type: Body.STATIC,
-        shape: new Box(
-          new Vec3(cube.size.x / 2, cube.size.y / 2, cube.size.z / 2),
-        ),
-        position: new Vec3(cube.origin.x, cube.origin.y - 0.5, cube.origin.z),
-      });
-      physWorld.addBody(body);
+      const extents = new Vec3(
+        cube.size.x / 2,
+        cube.size.y / 2,
+        cube.size.z / 2,
+      );
+      const off = new Vec3(
+        cube.origin.x,
+        cube.origin.y,
+        cube.origin.z,
+      );
+      console.log(off.toString());
+      worldBody.addShape(new Box(extents), off);
+      physWorld.addBody(worldBody);
     }
   }
 

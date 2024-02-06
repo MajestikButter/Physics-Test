@@ -7,7 +7,7 @@ export interface Cube {
 export class GreedyMesher {
   private voxels: boolean[];
   private max = this.size * this.size * this.size;
-  constructor(public readonly size: number, private readonly min: Vec3) {
+  constructor(public readonly size: number) {
     this.voxels = new Array(this.max).fill(0);
   }
 
@@ -29,7 +29,7 @@ export class GreedyMesher {
   }
 
   setVoxel(x: number, y: number, z: number) {
-    const index = this.voxIndex(x - this.min.x, y - this.min.y, z - this.min.z);
+    const index = this.voxIndex(x, y, z);
     this.voxels[index] = true;
   }
 
@@ -54,12 +54,8 @@ export class GreedyMesher {
       if (!prevVox) continue;
 
       const prevGroup = groups[prevVoxIdx];
-      const group = groups[i];
 
-      const { x: psx, z: psz } = this.voxSize(prevGroup);
-      const { z: sz } = this.voxSize(group);
-      if (psz !== sz) continue;
-
+      const { x: psx } = this.voxSize(prevGroup);
       groups[i] += psx;
       groups[prevVoxIdx] = 0;
     }
@@ -87,9 +83,9 @@ export class GreedyMesher {
     // Mesh Y axis
     for (let i = 0; i < this.max; i++) {
       const { x, y, z } = this.voxPos(i);
-      if (z < 1 || !this.voxels[i]) continue;
+      if (y < 1 || !this.voxels[i]) continue;
 
-      const prevVoxIdx = this.voxIndex(x, y, z - 1);
+      const prevVoxIdx = this.voxIndex(x, y - 1, z);
       const prevVox = this.voxels[prevVoxIdx];
       if (!prevVox) continue;
 
@@ -116,9 +112,9 @@ export class GreedyMesher {
       const size = this.voxSize(groups[i]);
       cubes.push({
         origin: {
-          x: this.min.x + pos.x + 1 - size.x / 2,
-          z: this.min.z + pos.z + 1 - size.z / 2,
-          y: this.min.y + pos.y + 1 - size.y / 2 + 0.5,
+          x: pos.x + 1 - size.x / 2,
+          z: pos.z + 1 - size.z / 2,
+          y: pos.y + 1 - size.y / 2 + 0.5,
         },
         size: { x: size.x, z: size.z, y: size.y },
       });
